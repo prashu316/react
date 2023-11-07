@@ -83,9 +83,11 @@ public class ExtensionTyposquatting extends ExtensionAdaptor {
         super(NAME);
         setI18nPrefix(PREFIX);
         test_websites.add("google.com");
-        CTP = new ConcreteTyposquattingPreventer(test_websites);
         PP = new PreferencePersistor("D:\\fin\\zap-extensions\\addOns\\typosquatting\\src\\main\\resources\\data.properties");
         PP.loadPreferenceFromFile();
+        Set<String> test_websites = PP.getLegitSites();
+        CTP = new ConcreteTyposquattingPreventer(test_websites);
+
     }
 
     @Override
@@ -154,30 +156,74 @@ public class ExtensionTyposquatting extends ExtensionAdaptor {
                                 // TODO: Perform typosquatting check
                             if (CTP.hasDetectedTyposquatting(url) == false) {
                                 BrowserOpener.openURLInDefaultBrowser(url);
-                                CTP.COMMON_WEBSITES.add(url);
-                                } else {
-                                int n = JOptionPane.showConfirmDialog(JOptionPane.getRootFrame(),
-                                        "Are you sure you want to continue?",
-                                        "Warning",
-                                        JOptionPane.YES_NO_OPTION);
-                                if(n==0)
+                                if(!CTP.COMMON_WEBSITES.contains(url))
                                 {
-                                    //displayURL(System.getProperty("user.dir"));
-                                    String url2 = PP.getPreference(url);
-                                    //displayURL(url);
-                                    //displayURL(url2);
-                                    if(url2 != "")
-                                    {BrowserOpener.openURLInDefaultBrowser(url2);
-                                        CTP.COMMON_WEBSITES.add(url2);}
+                                    CTP.COMMON_WEBSITES.add(url);
+                                    PP.addPreference(url,url);
+                                    PP.savePreferenceToFile();
+                                }
+                                else {}
+                                }
+                            else
+                            {
+                                String url2 = PP.getPreference(url);
+                                if(url2!="")
+                                {
+                                    int n = JOptionPane.showConfirmDialog(JOptionPane.getRootFrame(),
+                                            "Did you mean "+url2 +"?",
+                                            "Warning",
+                                            JOptionPane.YES_NO_OPTION);
+                                    if(n==0)
+                                    {
+                                        BrowserOpener.openURLInDefaultBrowser(url2);
+                                        CTP.COMMON_WEBSITES.add(url2);
+                                    }
                                     else
                                     {
-                                        PP.addPreference(url,url);
-                                        PP.savePreferenceToFile();
-                                        BrowserOpener.openURLInDefaultBrowser(url);
-                                        CTP.COMMON_WEBSITES.add(url);
+                                        int k = JOptionPane.showConfirmDialog(JOptionPane.getRootFrame(),
+                                                "Are you sure you want to continue to "+url +"?",
+                                                "Warning",
+                                                JOptionPane.YES_NO_OPTION);
+                                        if(k==0)
+                                        {
+                                            //displayURL(System.getProperty("user.dir"));
+                                            //String url2 = PP.getPreference(url);
+                                            //displayURL(url);
+                                            //displayURL(url2);
+
+
+                                                PP.addPreference(url,url);
+                                                PP.savePreferenceToFile();
+                                                BrowserOpener.openURLInDefaultBrowser(url);
+                                                CTP.COMMON_WEBSITES.add(url);
+
+                                        }
+                                    }
+                                }
+                                    else
+                                    {
+                                        int n = JOptionPane.showConfirmDialog(JOptionPane.getRootFrame(),
+                                                "Are you sure you want to continue to "+url +"?",
+                                                "Warning",
+                                                JOptionPane.YES_NO_OPTION);
+                                        if(n==0)
+                                        {
+                                            //displayURL(System.getProperty("user.dir"));
+                                            //String url2 = PP.getPreference(url);
+                                            //displayURL(url);
+                                            //displayURL(url2);
+
+
+                                            PP.addPreference(url,url);
+                                            PP.savePreferenceToFile();
+                                            BrowserOpener.openURLInDefaultBrowser(url);
+                                            CTP.COMMON_WEBSITES.add(url);
+
+
+                                        }
                                     }
 
-                                }
+
 
 
                                 }
